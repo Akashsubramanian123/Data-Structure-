@@ -3,11 +3,8 @@
 int main() {
     int num;
     unsigned long long factorial = 1;
-
     printf("Enter a positive integer: ");
     scanf("%d", &num);
-
-    // Error handling for negative numbers
     if (num < 0) {
         printf("Error! Factorial of a negative number doesn't exist.");
     } 
