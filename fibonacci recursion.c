@@ -9,7 +9,9 @@ int fibo(int n,int a,int b)
 }
 int main() 
 {
-    int n=10,a=0,b=1;
+    int n,a=0,b=1;
+    printf("Enter the number of terms: ");
+    scanf("%d", &n);
     fibo(n,a,b);
     return 0;
 }
