@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX 100
+#define MAX 100  // Maximum number of vertices in the graph
 
 struct Queue {
     int items[MAX];
@@ -9,11 +9,15 @@ struct Queue {
     int rear;
 };
 
-struct Queue* createQueue() {
-    struct Queue* q = malloc(sizeof(struct Queue));
+struct Graph {
+    int numVertices;
+    int adjMatrix[MAX][MAX];
+    int visited[MAX];
+};
+
+void initializeQueue(struct Queue* q) {
     q->front = -1;
     q->rear = -1;
-    return q;
 }
 
 int isEmpty(struct Queue* q) {
@@ -46,70 +50,57 @@ int dequeue(struct Queue* q) {
     return item;
 }
 
-void printQueue(struct Queue *q) {
-    int i = q->front;
-
-    if (isEmpty(q)) {
-        printf("Queue is empty");
-    } else {
-        for (i = q->front; i < q->rear + 1; i++) {
-            printf("%d ", q->items[i]);
+void createGraph(struct Graph* g, int vertices) {
+    g->numVertices = vertices;
+    for (int i = 0; i < vertices; i++) {
+        g->visited[i] = 0;
+        for (int j = 0; j < vertices; j++) {
+            g->adjMatrix[i][j] = 0;
         }
     }
 }
 
-struct Node {
-    int vertex;
-    struct Node* next;
-};
-
-struct Node* createNode(int v) {
-    struct Node* newNode = malloc(sizeof(struct Node));
-    newNode->vertex = v;
-    newNode->next = NULL;
-    return newNode;
+void addEdge(struct Graph* g, int src, int dest) {
+    g->adjMatrix[src][dest] = 1;
+    g->adjMatrix[dest][src] = 1;  // For undirected graph
 }
 
-struct Graph {
-    int numVertices;
-    struct Node** adjLists;
-    int* visited;
-};
+void bfs(struct Graph* g, int startVertex) {
+    struct Queue q;
+    initializeQueue(&q);
 
-struct Graph* createGraph(int vertices) {
-    struct Graph* graph = malloc(sizeof(struct Graph));
-    graph->numVertices = vertices;
+    g->visited[startVertex] = 1;
+    enqueue(&q, startVertex);
 
-    graph->adjLists = malloc(vertices * sizeof(struct Node*));
-    graph->visited = malloc(vertices * sizeof(int));
-
-    int i;
-    for (i = 0; i < vertices; i++) {
-        graph->adjLists[i] = NULL;
-        graph->visited[i] = 0;
-    }
-    return graph;
-}
-
-void addEdge(struct Graph* graph, int src, int dest) {
-    struct Node* newNode = createNode(dest);
-    newNode->next = graph->adjLists[src];
-    graph->adjLists[src] = newNode;
-
-    newNode = createNode(src);
-    newNode->next = graph->adjLists[dest];
-    graph->adjLists[dest] = newNode;
-}
-
-void bfs(struct Graph* graph, int startVertex) {
-    struct Queue* q = createQueue();
-
-    graph->visited[startVertex] = 1;
-    enqueue(q, startVertex);
-
-    while (!isEmpty(q)) {
-        int currentVertex = dequeue(q);
+    while (!isEmpty(&q)) {
+        int currentVertex = dequeue(&q);
         printf("Visited %d\n", currentVertex);
 
-        struct Node* temp = graph->adjLists[currentVertex];
+        for (int i = 0; i < g->numVertices; i++) {
+            if (g->adjMatrix[currentVertex][i] == 1 && !g->visited[i]) {
+                g->visited[i] = 1;
+                enqueue(&q, i);
+            }
+        }
+    }
+}
 
+int main() {
+    struct Graph g;
+    int vertices = 6;
+
+    createGraph(&g, vertices);
+
+    addEdge(&g, 0, 1);
+    addEdge(&g, 0, 2);
+    addEdge(&g, 1, 2);
+    addEdge(&g, 1, 3);
+    addEdge(&g, 2, 4);
+    addEdge(&g, 3, 4);
+    addEdge(&g, 3, 5);
+    addEdge(&g, 4, 5);
+
+    bfs(&g, 0);
+
+    return 0;
+}
